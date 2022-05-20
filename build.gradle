@@ -1,0 +1,48 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.7'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.aniket'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url "https://repository.hazelcast.com/release"
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
+	implementation 'io.springfox:springfox-swagger2:3.0.0'
+// https://mvnrepository.com/artifact/com.hazelcast/hazelcast-all
+	implementation 'com.hazelcast:hazelcast-enterprise:5.1'
+// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	implementation 'org.postgresql:postgresql:42.3.5'
+// https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
+	implementation 'org.modelmapper:modelmapper:1.1.0'
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+implementation 'com.google.code.gson:gson:2.9.0'
+	
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
