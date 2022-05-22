@@ -3,6 +3,8 @@ package com.aniket.movie.util;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,10 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplicationUtils {
 
 	  @Autowired
-	  RestTemplate restTemplate;
+	  private RestTemplate restTemplate;
 
-	
+
+	@Cacheable(value ="cache-data",key="{#key, #context}")
 	public String getCache(String key , String context) {
+		log.info("ACTUAL CACHE GET CALLED TO DIST CACHE -  {} ---->{}",context,key);
 		String result = null;
 		try {
 		result =  restTemplate.exchange("http://localhost:8080/cache/"+context+"/"+key, HttpMethod.GET, null, String.class).getBody();
@@ -31,10 +35,10 @@ public class ApplicationUtils {
 		log.info("Cache Context - {} , Key - {} , value - {}" , context , key , result);
 		return result;
 	}
-	
-	
+
+	@CacheEvict(value="cache-data",key="{#key, #context}")
 	public void putCache(String key , String context , String newValue) {
-		
+		log.info("CACHE PUT CALLED TO DIST CACHE -  {} ---->{}",context,key);
 		boolean result = false;
 		try {
 			  HttpHeaders headers = new HttpHeaders();

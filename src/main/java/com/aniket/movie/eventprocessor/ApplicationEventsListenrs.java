@@ -34,7 +34,7 @@ public class ApplicationEventsListenrs {
 	@EventListener
 	public void customerMainDataUpdateListner(CustomerUpdateEvent event) throws Exception {
 		log.info("CustomerUpdateEvent is Captured ....");
-		Thread.sleep(5000);
+	//	Thread.sleep(5000);
 		Customer customer =  (Customer) event.getPayload();
 		Integer customerId = customer.getCustomerId();
 		Customer findCustomerFromDB = customerService.findCustomerFromDB(customerId);
@@ -48,7 +48,7 @@ public class ApplicationEventsListenrs {
 	@EventListener
 	public void customerMainDataUpdateListner(AddressUpdateEvent event) throws Exception {
 		log.info("AddressUpdateEvent is Captured .... Updating Address Part of the Contract ");
-		Thread.sleep(5000);
+	//	Thread.sleep(5000);
 		Address address =  (Address) event.getPayload();
 		Integer addressId = address.getAddressId();
 		log.info("Payload is - AddressId :: {}" , addressId);
@@ -61,7 +61,7 @@ public class ApplicationEventsListenrs {
 	@EventListener
 	public void addressUpdateListner(AddressUpdateEvent event) throws Exception {
 		log.info("AddressUpdateEvent is Captured ....");
-		Thread.sleep(5000);
+	//	Thread.sleep(5000);
 		Address address =  (Address) event.getPayload();
 		Integer addressId = address.getAddressId();
 		Address findAddressFromDB = addressService.findAddressFromDB(addressId);
