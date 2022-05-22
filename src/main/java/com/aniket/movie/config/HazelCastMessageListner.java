@@ -1,12 +1,10 @@
 package com.aniket.movie.config;
 
-import com.google.gson.Gson;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,7 +40,8 @@ public class HazelCastMessageListner implements EntryAddedListener<String, Strin
     public void entryUpdated( EntryEvent<String, String> event ) {
         log.info( "Entry Updated: {}" , event );
         KafkaMessage kafkaMessage = new KafkaMessage();
-        kafkaMessage.setPayload(event.getKey());
+        kafkaMessage.setCacheKeyName(event.getKey());
+        kafkaMessage.setContext(event.getName());
         kafkaProducer.produce( kafkaMessage);
     }
 

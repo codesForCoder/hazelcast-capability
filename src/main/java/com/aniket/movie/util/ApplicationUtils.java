@@ -3,6 +3,8 @@ package com.aniket.movie.util;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
@@ -22,8 +24,14 @@ public class ApplicationUtils {
 	  @Autowired
 	  private RestTemplate restTemplate;
 
+	@Autowired
+	private CacheManager cacheManager;
 
-	@Cacheable(value ="cache-data",key="{#key, #context}")
+	public void evictSingleCacheValue(String cacheKey, String cacheName) {
+		 cacheManager.getCache(cacheName).evict(cacheKey);
+		log.info("CacheName : {} === Data Evicted for Key ----- {}",cacheName,cacheKey);
+	}
+	@Cacheable(value ="cache-data",key="{#context}+'-'+#key")
 	public String getCache(String key , String context) {
 		log.info("ACTUAL CACHE GET CALLED TO DIST CACHE -  {} ---->{}",context,key);
 		String result = null;
@@ -36,7 +44,7 @@ public class ApplicationUtils {
 		return result;
 	}
 
-	@CacheEvict(value="cache-data",key="{#key, #context}")
+
 	public void putCache(String key , String context , String newValue) {
 		log.info("CACHE PUT CALLED TO DIST CACHE -  {} ---->{}",context,key);
 		boolean result = false;

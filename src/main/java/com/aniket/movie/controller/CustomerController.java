@@ -11,6 +11,7 @@ import com.aniket.movie.service.CustomerService;
 import com.aniket.movie.util.ApplicationUtils;
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,9 @@ public class CustomerController {
         String cache = applicationUtils.getCache(String.valueOf(customerId), CacheContext.CUSTOMER);
         if(StringUtils.hasText(cache) && !isFromDB) {
         	log.info("Raw Data - {}" , cache);
-        	customer = new Gson().fromJson(cache,Customer.class);
+            Gson gson = new GsonBuilder()
+                    .setDateFormat( "yyyy-MMM-dd hh:mm:ss aa").create();
+            customer = gson.fromJson(cache,Customer.class);
         }else {
         	customer=customerService.findCustomerFromDB(customerId);
         }

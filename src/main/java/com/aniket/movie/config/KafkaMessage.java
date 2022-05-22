@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class KafkaMessage {
-private String payload;
+private String cacheKeyName;
+private String context;
 }

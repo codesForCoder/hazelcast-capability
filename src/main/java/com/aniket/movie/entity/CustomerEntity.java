@@ -32,9 +32,9 @@ public class CustomerEntity {
     @Column(name = "active")
     private Integer isActive;
     @Column(name = "create_date" ,insertable = false, updatable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, fallbackPatterns = { "M/d/yy", "dd.MM.yyyy" })
+    @DateTimeFormat(pattern = "yyyy-MMM-dd hh:mm:ss aa")
     private Date dateCreated;
     @Column(name = "last_update")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, fallbackPatterns = { "M/d/yy", "dd.MM.yyyy" })
+    @DateTimeFormat(pattern = "yyyy-MMM-dd hh:mm:ss aa")
     private Date lastUpdated;
 }

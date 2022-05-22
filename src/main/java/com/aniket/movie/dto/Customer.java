@@ -1,5 +1,6 @@
 package com.aniket.movie.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -20,8 +21,10 @@ public class Customer {
     private Address address;
 
     private Integer isActive;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MMM-dd hh:mm:ss aa")
 
     private Date dateCreated;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MMM-dd hh:mm:ss aa")
 
     private Date lastUpdated;
 }

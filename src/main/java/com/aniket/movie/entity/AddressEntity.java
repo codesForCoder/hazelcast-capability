@@ -31,7 +31,7 @@ public class AddressEntity {
     @Column(name = "phone")
     private String phoneNumber;
     @Column(name = "last_update")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, fallbackPatterns = { "M/d/yy", "dd.MM.yyyy" })
+    @DateTimeFormat(pattern = "yyyy-MMM-dd hh:mm:ss aa")
     private Date lastUpdated;
 
 }

@@ -1,5 +1,6 @@
 package com.aniket.movie.eventprocessor;
 
+import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
@@ -38,7 +39,10 @@ public class ApplicationEventsListenrs {
 		Customer customer =  (Customer) event.getPayload();
 		Integer customerId = customer.getCustomerId();
 		Customer findCustomerFromDB = customerService.findCustomerFromDB(customerId);
-		String payload = new Gson().toJson(findCustomerFromDB);
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();
+
+		String payload = gson.toJson(findCustomerFromDB);
 		log.info("Payload is - {}" , payload);
 		applicationUtils.putCache(String.valueOf(customerId),CacheContext.CUSTOMER, payload);
 		log.info("CustomerUpdateEvent is Processed ....");
@@ -65,7 +69,10 @@ public class ApplicationEventsListenrs {
 		Address address =  (Address) event.getPayload();
 		Integer addressId = address.getAddressId();
 		Address findAddressFromDB = addressService.findAddressFromDB(addressId);
-		String payload = new Gson().toJson(findAddressFromDB);
+		Gson gson = new GsonBuilder()
+				.setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();
+
+		String payload = gson.toJson(findAddressFromDB);
 		log.info("Payload is - {}" , payload);
 		applicationUtils.putCache(String.valueOf(addressId),CacheContext.ADDRESS, payload);
 		log.info("AddressUpdateEvent is Processed ....");

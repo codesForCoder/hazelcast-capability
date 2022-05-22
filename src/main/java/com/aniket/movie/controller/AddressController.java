@@ -10,10 +10,12 @@ import com.aniket.movie.service.AddressService;
 import com.aniket.movie.util.ApplicationUtils;
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -47,7 +49,9 @@ public class AddressController {
         String cache = applicationUtils.getCache(String.valueOf(addressId), CacheContext.ADDRESS);
         if(StringUtils.hasText(cache) & !isFromDB) {
         	log.info("Raw Data - {}" , cache);
-        	address = new Gson().fromJson(cache,Address.class);
+            Gson gson = new GsonBuilder()
+                    .setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();
+        	address =gson.fromJson(cache,Address.class);
         }else {
         	log.info("Fetching Data from Database ....");
         	address= addressService.findAddressFromDB(addressId);

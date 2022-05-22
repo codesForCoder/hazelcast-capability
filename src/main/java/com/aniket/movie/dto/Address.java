@@ -1,5 +1,6 @@
 package com.aniket.movie.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -25,6 +26,6 @@ public class Address {
     private String postalCode;
 
     private String phoneNumber;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MMM-dd hh:mm:ss aa")
     private Date lastUpdated;
 }
