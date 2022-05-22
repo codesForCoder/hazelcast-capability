@@ -30,25 +30,25 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-actuator'
+	compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+	compile 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
-	implementation 'io.springfox:springfox-swagger2:3.0.0'
+	compile 'io.springfox:springfox-swagger2:3.0.0'
 // https://mvnrepository.com/artifact/com.hazelcast/hazelcast-all
-	implementation 'com.hazelcast:hazelcast-enterprise:5.1'
+	compile 'com.hazelcast:hazelcast-enterprise:5.1'
 // https://mvnrepository.com/artifact/org.postgresql/postgresql
-	implementation 'org.postgresql:postgresql:42.3.5'
+	compile 'org.postgresql:postgresql:42.3.5'
 // https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
-	implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
-	implementation 'org.modelmapper:modelmapper:1.1.0'
+	compile 'org.springdoc:springdoc-openapi-ui:1.6.8'
+	compile 'org.modelmapper:modelmapper:1.1.0'
 	// https://mvnrepository.com/artifact/com.google.code.gson/gson
-implementation 'com.google.code.gson:gson:2.9.0'
-	implementation 'org.springframework.kafka:spring-kafka'
+	compile 'com.google.code.gson:gson:2.9.0'
+	compile 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	
 }
