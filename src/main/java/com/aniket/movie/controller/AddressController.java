@@ -3,13 +3,14 @@ package com.aniket.movie.controller;
 
 import com.aniket.movie.constant.CacheContext;
 import com.aniket.movie.dto.Address;
-import com.aniket.movie.dto.Customer;
-import com.aniket.movie.eventprocessor.AddressUpdateEvent;
+import com.aniket.movie.eventprocessor.AddressUpdateEventAsync;
+import com.aniket.movie.eventprocessor.AddressUpdateEventInSync;
 import com.aniket.movie.request.AddressRequest;
 import com.aniket.movie.request.SearchListRequest;
 import com.aniket.movie.response.*;
 import com.aniket.movie.service.AddressService;
 import com.aniket.movie.util.ApplicationUtils;
+import com.configcat.ConfigCatClient;
 import com.google.gson.Gson;
 
 import com.google.gson.GsonBuilder;
@@ -42,6 +43,8 @@ public class AddressController {
     @Autowired
     private ApplicationUtils applicationUtils;
 
+    @Autowired
+    private ConfigCatClient client;
 
     @GetMapping(params = {"page" , "limit" ,"noCache"})
     public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "false" , required = false)String  noCache){
@@ -84,8 +87,18 @@ public class AddressController {
         Address address =  modelMapper.map(addressRequest, Address.class);
         address.setAddressId(addressId);
         Address updateAddress =addressService.updateAddress(address);
-        AddressUpdateEvent event = new AddressUpdateEvent(this, updateAddress);
-		publisher.publishEvent(event);
+
+        boolean consistency_level_is_full = client.getValue(Boolean.class, "consistency_level_is_full", false);
+        if(consistency_level_is_full){
+            AddressUpdateEventInSync event = new AddressUpdateEventInSync(this, updateAddress);
+            publisher.publishEvent(event);
+        }else{
+            AddressUpdateEventAsync event = new AddressUpdateEventAsync(this, updateAddress);
+            publisher.publishEvent(event);
+
+        }
+
+
         AddressResponse addressResponse = modelMapper.map(updateAddress, AddressResponse.class);
         addressResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return addressResponse;

@@ -5,12 +5,12 @@ import org.springframework.context.ApplicationEvent;
 import lombok.Data;
 
 @Data
-public class AddressUpdateEvent extends ApplicationEvent {
+public class AddressUpdateEventAsync extends ApplicationEvent {
 
 
 	private Object payload;
 	
-	public AddressUpdateEvent(Object source, Object payload) {
+	public AddressUpdateEventAsync(Object source, Object payload) {
 		super(source);
 		this.payload = payload;
 	}

@@ -2,14 +2,15 @@ package com.aniket.movie.controller;
 
 
 import com.aniket.movie.constant.CacheContext;
-import com.aniket.movie.dto.Address;
 import com.aniket.movie.dto.Customer;
-import com.aniket.movie.eventprocessor.CustomerUpdateEvent;
+import com.aniket.movie.eventprocessor.CustomerUpdateEventAsync;
+import com.aniket.movie.eventprocessor.CustomerUpdateEventInSync;
 import com.aniket.movie.request.CustomerRequest;
 import com.aniket.movie.request.SearchListRequest;
 import com.aniket.movie.response.*;
 import com.aniket.movie.service.CustomerService;
 import com.aniket.movie.util.ApplicationUtils;
+import com.configcat.ConfigCatClient;
 import com.google.gson.Gson;
 
 import com.google.gson.GsonBuilder;
@@ -39,6 +40,9 @@ public class CustomerController {
     
     @Autowired
     private ApplicationUtils applicationUtils;
+
+    @Autowired
+    private ConfigCatClient client;
 
     @GetMapping(params = {"page" , "limit" ,"noCache"})
     public CustomerListResponse getCustomers(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "false" , required = false)String  noCache){
@@ -87,8 +91,15 @@ public class CustomerController {
         Customer customer =  modelMapper.map(customerRequest, Customer.class);
         customer.setCustomerId(customerId);
         Customer updatedCustomer =customerService.updateCustomer(customer);
-        CustomerUpdateEvent event = new CustomerUpdateEvent(this, updatedCustomer);
-		publisher.publishEvent(event);
+        boolean consistency_level_is_full = client.getValue(Boolean.class, "consistency_level_is_full", false);
+        if(consistency_level_is_full){
+            CustomerUpdateEventInSync event = new CustomerUpdateEventInSync(this, updatedCustomer);
+            publisher.publishEvent(event);
+        }else{
+            CustomerUpdateEventAsync event = new CustomerUpdateEventAsync(this, updatedCustomer);
+            publisher.publishEvent(event);
+        }
+
         CustomerResponse customerResponse = modelMapper.map(updatedCustomer, CustomerResponse.class);
         customerResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return  customerResponse;

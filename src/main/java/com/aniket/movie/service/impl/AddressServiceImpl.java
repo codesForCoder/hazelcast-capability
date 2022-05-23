@@ -1,19 +1,14 @@
 package com.aniket.movie.service.impl;
 
 import com.aniket.movie.dto.Address;
-import com.aniket.movie.dto.Customer;
 import com.aniket.movie.entity.AddressEntity;
 import com.aniket.movie.entity.AddressEntityProjection;
-import com.aniket.movie.entity.CustomerEntity;
-import com.aniket.movie.entity.CustomerEntityProjection;
-import com.aniket.movie.eventprocessor.AddressUpdateEvent;
-import com.aniket.movie.eventprocessor.CustomerUpdateEvent;
+import com.aniket.movie.eventprocessor.AddressUpdateEventAsync;
+import com.aniket.movie.eventprocessor.AddressUpdateEventInSync;
 import com.aniket.movie.repository.AddressRepository;
-import com.aniket.movie.repository.CustomerRepository;
 import com.aniket.movie.response.AddressListResponse;
-import com.aniket.movie.response.CustomerListResponse;
 import com.aniket.movie.service.AddressService;
-import com.aniket.movie.service.CustomerService;
+import com.configcat.ConfigCatClient;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +32,9 @@ public class AddressServiceImpl implements AddressService {
     private AddressRepository addressRepository;
     @Autowired
   	private ApplicationEventPublisher publisher;
+
+    @Autowired
+    private ConfigCatClient client;
 
     @Override
     public Address updateAddress(Address address) {
@@ -77,8 +74,16 @@ public class AddressServiceImpl implements AddressService {
         	 addresses.forEach(item->{
         		 Address address = new Address();
         		 address.setAddressId(item);
-        		 AddressUpdateEvent event = new AddressUpdateEvent(this, address);
-        		 publisher.publishEvent(event);
+
+                 boolean consistency_level_is_full = client.getValue(Boolean.class, "consistency_level_is_full", false);
+                 if(consistency_level_is_full){
+                     AddressUpdateEventInSync event = new AddressUpdateEventInSync(this, address);
+                     publisher.publishEvent(event);
+                 }else{
+                     AddressUpdateEventAsync event = new AddressUpdateEventAsync(this, address);
+                     publisher.publishEvent(event);
+                 }
+
         	 });
         	 if(addressEntity.hasNext())
         	 {

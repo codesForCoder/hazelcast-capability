@@ -3,12 +3,14 @@ package com.aniket.movie.service.impl;
 import com.aniket.movie.dto.Customer;
 import com.aniket.movie.entity.CustomerEntity;
 import com.aniket.movie.entity.CustomerEntityProjection;
-import com.aniket.movie.eventprocessor.CustomerUpdateEvent;
+import com.aniket.movie.eventprocessor.CustomerUpdateEventAsync;
+import com.aniket.movie.eventprocessor.CustomerUpdateEventInSync;
 import com.aniket.movie.repository.CustomerRepository;
 import com.aniket.movie.response.CustomerListResponse;
 import com.aniket.movie.service.CustomerService;
 import com.aniket.movie.util.ApplicationUtils;
 
+import com.configcat.ConfigCatClient;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,10 @@ public class CustomerServiceImpl implements CustomerService {
     
     @Autowired
     private ApplicationUtils applicationUtils;
+
+
+    @Autowired
+    private ConfigCatClient client;
 
     @Override
     public CustomerListResponse findAllCustomer(int limit, int page) {
@@ -64,8 +69,16 @@ public class CustomerServiceImpl implements CustomerService {
         	 customers.forEach(item->{
         		 Customer customer = new Customer();
         		 customer.setCustomerId(item);
-        		 CustomerUpdateEvent event = new CustomerUpdateEvent(this, customer);
-        		 publisher.publishEvent(event);
+
+                 boolean consistency_level_is_full = client.getValue(Boolean.class, "consistency_level_is_full", false);
+                 if(consistency_level_is_full){
+                     CustomerUpdateEventInSync event = new CustomerUpdateEventInSync(this, customer);
+                     publisher.publishEvent(event);
+                 }else{
+                     CustomerUpdateEventAsync event = new CustomerUpdateEventAsync(this, customer);
+                     publisher.publishEvent(event);
+                 }
+
         	 });
         	 if(customerEntities.hasNext())
         	 {
@@ -114,8 +127,17 @@ public class CustomerServiceImpl implements CustomerService {
         	 customers.forEach(item->{
         		 Customer customer = new Customer();
         		 customer.setCustomerId(item);
-        		 CustomerUpdateEvent event = new CustomerUpdateEvent(this, customer);
-        		 publisher.publishEvent(event);
+
+                 boolean consistency_level_is_full = client.getValue(Boolean.class, "consistency_level_is_full", false);
+                 if(consistency_level_is_full){
+                     CustomerUpdateEventInSync event = new CustomerUpdateEventInSync(this, customer);
+                     publisher.publishEvent(event);
+                 }else{
+                     CustomerUpdateEventAsync event = new CustomerUpdateEventAsync(this, customer);
+                     publisher.publishEvent(event);
+
+                 }
+
         	 });
         	 if(customerEntities.hasNext())
         	 {

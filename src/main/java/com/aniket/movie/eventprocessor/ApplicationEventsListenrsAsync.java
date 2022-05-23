@@ -3,7 +3,6 @@ package com.aniket.movie.eventprocessor;
 import com.configcat.ConfigCatClient;
 import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableAsync
 @Configuration
 @Slf4j
-public class ApplicationEventsListenrs {
+public class ApplicationEventsListenrsAsync {
 	
 	@Autowired
 	private CustomerService customerService;
@@ -38,7 +37,7 @@ public class ApplicationEventsListenrs {
 
 	@Async
 	@EventListener
-	public void customerMainDataUpdateListner(CustomerUpdateEvent event) throws Exception {
+	public void customerMainDataUpdateListner(CustomerUpdateEventAsync event) throws Exception {
 		log.info("CustomerUpdateEvent is Captured ....");
 		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
 		if(application_delay_introduced)
@@ -59,7 +58,7 @@ public class ApplicationEventsListenrs {
 	
 	@Async
 	@EventListener
-	public void customerMainDataUpdateListner(AddressUpdateEvent event) throws Exception {
+	public void customerMainDataUpdateListner(AddressUpdateEventAsync event) throws Exception {
 		log.info("AddressUpdateEvent is Captured .... Updating Address Part of the Contract ");
 		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
 		if(application_delay_introduced)
@@ -76,7 +75,7 @@ public class ApplicationEventsListenrs {
 
 	@Async
 	@EventListener
-	public void addressUpdateListner(AddressUpdateEvent event) throws Exception {
+	public void addressUpdateListner(AddressUpdateEventAsync event) throws Exception {
 		log.info("AddressUpdateEvent is Captured ....");
 		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
 		if(application_delay_introduced)
