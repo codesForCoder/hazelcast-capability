@@ -87,8 +87,8 @@ public class ApplicationUtils {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<SearchListRequest> entity = new HttpEntity<SearchListRequest>(searchListRequest, headers);
-        SearchListResponse result = restTemplate.exchange("http://localhost:"+applicationPort+  "/cache/search/" + searchListRequest.getContext(), HttpMethod.POST, entity, SearchListResponse.class).getBody();
-       // SearchListResponse result = restTemplate.exchange(hazelcastServiceUrlBase + "/cache/search/" + searchListRequest.getContext(), HttpMethod.POST, entity, SearchListResponse.class).getBody();
+        //SearchListResponse result = restTemplate.exchange("http://localhost:"+applicationPort+  "/cache/search/" + searchListRequest.getContext(), HttpMethod.POST, entity, SearchListResponse.class).getBody();
+        SearchListResponse result = restTemplate.exchange(hazelcastServiceUrlBase + "/cache/search/" + searchListRequest.getContext(), HttpMethod.POST, entity, SearchListResponse.class).getBody();
 
         log.info("Cache Searched Result ----- {}", result);
         return result;
