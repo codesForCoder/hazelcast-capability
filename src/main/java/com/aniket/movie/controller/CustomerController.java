@@ -45,12 +45,9 @@ public class CustomerController {
     @Autowired
     private ConfigCatClient client;
 
-    @GetMapping(params = {"page" , "limit" ,"source"})
-    public CustomerListResponse getCustomers(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false)DataSource  dataSrc){
+    @GetMapping(path = "/{source}",params = {"page" , "limit" ,})
+    public CustomerListResponse getCustomers(@RequestParam int page , @RequestParam int limit , @PathVariable( "source")DataSource  dataSrc){
         log.info("Fetching Customer for Page --- {} with Page Size - {}" , page , limit);
-       if(dataSrc==null) {
-           dataSrc = DataSource.fromValue("LOCAL_CACHE");
-       }
         CustomerListResponse customers =customerService.findAllCustomer(limit,page);
         log.info("is Data Need to be treived from Database - Mandetory ? - {}", dataSrc);
         log.info("Enrich Customer Payload wither from Cache or DB");
@@ -72,12 +69,9 @@ public class CustomerController {
         return new ResponseEntity<String>("Cache Building Started at Env :: "+applicationUtils.getCurrentEnv(),HttpStatus.ACCEPTED);
     }
 
-    @GetMapping(path = "/{id}" , params = {"source"})
-    public Customer getCustomer(@PathVariable("id") int customerId , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false)DataSource  dataSrc){
+    @GetMapping(path = "/{id}/{source}" )
+    public Customer getCustomer(@PathVariable("id") int customerId , @PathVariable( "source") DataSource  dataSrc){
         log.info("Fetching Customer for  id -- {}" , customerId );
-        if(dataSrc==null) {
-            dataSrc = DataSource.fromValue("LOCAL_CACHE");
-        }
         log.info("is Data Need to be rtreived from Database - Mandetory ? - {}", dataSrc);
         Customer customer;
         String cache=null;

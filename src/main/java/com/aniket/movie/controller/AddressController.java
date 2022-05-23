@@ -47,14 +47,11 @@ public class AddressController {
     @Autowired
     private ConfigCatClient client;
 
-    @GetMapping(params = {"page" , "limit" ,"source"})
-    public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false) DataSource dataSrc){
+    @GetMapping(path = "/{source}",params = {"page" , "limit" })
+    public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit ,  @PathVariable( "source") DataSource dataSrc){
         log.info("Fetching Address for Page --- {} with Page Size - {}" , page , limit);
-        if(dataSrc==null) {
-            dataSrc = DataSource.fromValue("LOCAL_CACHE");
-        }
         AddressListResponse allAddress =addressService.findAllAddress(limit,page);
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}",dataSrc.toString());
+        log.info("is Data Need to be received from Database - Mandatory ? - {}",dataSrc.toString());
         log.info("Enrich Address Payload wither from Cache or DB");
         DataSource finalDataSrc = dataSrc;
         allAddress.setAddressList(allAddress.getAddressList().stream().map(addr->{
@@ -66,13 +63,10 @@ public class AddressController {
         return allAddress;
     }
 
-    @GetMapping(path = "/{id}" , params = {"source"})
-    public Address getAddress(@PathVariable("id") int addressId , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false) DataSource dataSrc){
+    @GetMapping(path = "/{id}/{source}" )
+    public Address getAddress(@PathVariable("id") int addressId , @PathVariable( "source") DataSource dataSrc){
         log.info("Fetching Address for  id -- {}" , addressId );
-        if(dataSrc==null) {
-            dataSrc = DataSource.fromValue("LOCAL_CACHE");
-        }
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}", dataSrc.toString());
+        log.info("is Data Need to be retreived from Database - Mandetory ? - {}", dataSrc.toString());
 
         Address address;
         String cache=null;
