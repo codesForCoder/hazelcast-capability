@@ -36,7 +36,7 @@ public class HazelCastController {
     @Autowired
     private HazelCastMessageListner hazelCastMessageListner;
 
-    @PostMapping(path = "/search/{context}")
+    @PostMapping(path = "/search")
     public SearchListResponse getSearchedResult(@RequestBody SearchListRequest searchListRequest){
         log.info("Fetching Searched Data for Page --- {} with Page Size - {}" , searchListRequest.getCurrentPage() , searchListRequest.getPageSize());
         log.info("Fetching Cache for  Context - {} and Search Query  -- {}" , searchListRequest.getContext(),searchListRequest.getSearchQuery());
