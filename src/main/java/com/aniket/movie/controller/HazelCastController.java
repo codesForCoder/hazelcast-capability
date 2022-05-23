@@ -2,6 +2,7 @@ package com.aniket.movie.controller;
 
 
 import com.aniket.movie.config.HazelCastMessageListner;
+import com.aniket.movie.request.SearchListRequest;
 import com.aniket.movie.response.SearchListResponse;
 import com.aniket.movie.service.CacheService;
 import com.hazelcast.core.HazelcastInstance;
@@ -35,11 +36,12 @@ public class HazelCastController {
     @Autowired
     private HazelCastMessageListner hazelCastMessageListner;
 
-    @GetMapping(path = "/{context}/{query}" ,params = {"page" , "limit"})
-    public SearchListResponse getSearchedResult(@RequestParam int page , @RequestParam int limit ,@PathVariable("context") String context, @PathVariable("query") String query){
-        log.info("Fetching Searched Data for Page --- {} with Page Size - {}" , page , limit);
-        log.info("Fetching Cache for  Context - {} and Search Query  -- {}" , context,query);
-        SearchListResponse results =cacheService.findSearchedResults(limit,page,context , query);
+    @PostMapping(path = "/search/{context}")
+    public SearchListResponse getSearchedResult(@RequestBody SearchListRequest searchListRequest){
+        log.info("Fetching Searched Data for Page --- {} with Page Size - {}" , searchListRequest.getCurrentPage() , searchListRequest.getPageSize());
+        log.info("Fetching Cache for  Context - {} and Search Query  -- {}" , searchListRequest.getContext(),searchListRequest.getSearchQuery());
+        log.info("Search Space --- {}",searchListRequest.getSearchSpace());
+        SearchListResponse results =cacheService.findSearchedResults(searchListRequest);
         return results;
     }
 

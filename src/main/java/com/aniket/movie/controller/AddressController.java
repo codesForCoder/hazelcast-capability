@@ -5,7 +5,10 @@ import com.aniket.movie.constant.CacheContext;
 import com.aniket.movie.dto.Address;
 import com.aniket.movie.eventprocessor.AddressUpdateEvent;
 import com.aniket.movie.request.AddressRequest;
+import com.aniket.movie.request.SearchListRequest;
 import com.aniket.movie.response.AddressResponse;
+import com.aniket.movie.response.AddressSearchListResponse;
+import com.aniket.movie.response.SearchListResponse;
 import com.aniket.movie.service.AddressService;
 import com.aniket.movie.util.ApplicationUtils;
 import com.google.gson.Gson;
@@ -20,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 import static com.aniket.movie.constant.RestEndpoint.ADDRESS_ENDPOINT;
 
@@ -79,6 +84,27 @@ public class AddressController {
         addressService.publishAllAddresses();
         return new ResponseEntity<String>("Cache Buuilding Started At Env : --"+ applicationUtils.getCurrentEnv(),HttpStatus.ACCEPTED);
     }
+
+    @PostMapping(path = "/search/{context}")
+    public AddressSearchListResponse getSearchedResult(@RequestBody SearchListRequest searchListRequest){
+        log.info("Fetching Searched Data for Page --- {} with Page Size - {}" , searchListRequest.getCurrentPage() , searchListRequest.getPageSize());
+        log.info("Fetching Cache for  Context - {} and Search Query  -- {}" , searchListRequest.getContext(),searchListRequest.getSearchQuery());
+        log.info("Search Space --- {}",searchListRequest.getSearchSpace());
+        SearchListResponse results =applicationUtils.getSearchedResult(searchListRequest);
+        AddressSearchListResponse searchListResponse = new AddressSearchListResponse();
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();
+        searchListResponse.setSearchedDataList(results.getSearchedDataList().stream().map(item->gson.fromJson(item.toString(),Address.class) ).collect(Collectors.toList()));
+        searchListResponse.setSearchQuery(results.getSearchQuery());
+        searchListResponse.setSearchSpace(results.getSearchSpace());
+        searchListResponse.setContext(results.getContext());
+        searchListResponse.setCurrentPage(results.getCurrentPage());
+        searchListResponse.setPageSize(results.getPageSize());
+        searchListResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
+        searchListResponse.setTotalElements(results.getTotalElements());
+        return searchListResponse;
+    }
+
 
 
 }

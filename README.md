@@ -4,9 +4,40 @@ Using Hazelcast as Dist Cache and Use it for Creating Elastic Like Full Text Sea
 
 ## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+This Application Demonstrate the Capabilities of Hazelcast as well as Demostrate How we can achieve 
+Eventual Consistency of Cache whereever Required in Hilighly Available Microservice.
+Also This Shows Hazelcast Capability to Showcase Almost Full Text Search.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+
+Architechtire Diagram is arrached for the Same along with Infra Used
+For Demo Purpose HazelCast Driver and Actual Applications Packaged in Same Jar but they can be seperated Easily.
+Consider Followings -
+
+http://springbootdistcache-env.eba-essjurhf.us-east-1.elasticbeanstalk.com --> For Application
+https://whispering-ocean-85994.herokuapp.com --> For Hazelcast Driver
+/swagger-ui.html  -->Swagger UI Endpoint
+
+- Config Cat used for Showcasing Capability 
+
+- Hazelcast Cliud Used for Cache cluster
+
+- Confuent Cloud is Used for Kafka Messaging
+
+- Aws RDS  , AWS Beanstalk and Heroku is Used to Host Application and Database
+
+- Applications are Running Behind AWS Elastic LB - 2 instances Min always Running on Elasitc Autoscaling Group.
+
+Sample Search Query 
+
+{
+"currentPage": 0,
+"pageSize": 100,
+"searchQuery": "__6*",
+"context": "customer",
+"searchSpace": "address.addressLine1"
+}
+
+
 
 ## Add your files
 
@@ -18,6 +49,7 @@ cd existing_repo
 git remote add origin https://gitlab.com/royaniket20/hazel-cast-full-text-search-demo.git
 git branch -M main
 git push -uf origin main
+
 ```
 
 ## Integrate with your tools

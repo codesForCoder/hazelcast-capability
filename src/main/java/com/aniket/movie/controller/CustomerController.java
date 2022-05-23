@@ -2,11 +2,12 @@ package com.aniket.movie.controller;
 
 
 import com.aniket.movie.constant.CacheContext;
+import com.aniket.movie.dto.Address;
 import com.aniket.movie.dto.Customer;
 import com.aniket.movie.eventprocessor.CustomerUpdateEvent;
 import com.aniket.movie.request.CustomerRequest;
-import com.aniket.movie.response.CustomerListResponse;
-import com.aniket.movie.response.CustomerResponse;
+import com.aniket.movie.request.SearchListRequest;
+import com.aniket.movie.response.*;
 import com.aniket.movie.service.CustomerService;
 import com.aniket.movie.util.ApplicationUtils;
 import com.google.gson.Gson;
@@ -91,9 +92,28 @@ public class CustomerController {
         return  customerResponse;
 
     }
-    
-    
-    
-    
+
+    @PostMapping(path = "/search/{context}")
+    public CustomerSearchListResponse getSearchedResult(@RequestBody SearchListRequest searchListRequest){
+        log.info("Fetching Searched Data for Page --- {} with Page Size - {}" , searchListRequest.getCurrentPage() , searchListRequest.getPageSize());
+        log.info("Fetching Cache for  Context - {} and Search Query  -- {}" , searchListRequest.getContext(),searchListRequest.getSearchQuery());
+        log.info("Search Space --- {}",searchListRequest.getSearchSpace());
+        SearchListResponse results =applicationUtils.getSearchedResult(searchListRequest);
+        CustomerSearchListResponse searchListResponse = new CustomerSearchListResponse();
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();
+        searchListResponse.setSearchedDataList(results.getSearchedDataList().stream().map(item->gson.fromJson(item.toString(), Customer.class) ).collect(Collectors.toList()));
+        searchListResponse.setSearchQuery(results.getSearchQuery());
+        searchListResponse.setSearchSpace(results.getSearchSpace());
+        searchListResponse.setContext(results.getContext());
+        searchListResponse.setCurrentPage(results.getCurrentPage());
+        searchListResponse.setPageSize(results.getPageSize());
+        searchListResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
+        searchListResponse.setTotalElements(results.getTotalElements());
+        return searchListResponse;
+    }
+
+
+
 
 }

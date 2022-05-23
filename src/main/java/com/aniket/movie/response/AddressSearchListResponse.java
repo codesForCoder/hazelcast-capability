@@ -1,14 +1,14 @@
 package com.aniket.movie.response;
 
-import com.hazelcast.org.json.JSONObject;
+import com.aniket.movie.dto.Address;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class SearchListResponse {
+public class AddressSearchListResponse {
   private EnvironmentDetails environmentDetails;
-  private List<Object> searchedDataList;
+  private List<Address> searchedDataList;
   private Long currentPage;
   private Long pageSize;
   private Long totalElements;
