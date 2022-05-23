@@ -9,16 +9,13 @@ import com.aniket.movie.response.EnvironmentDetails;
 import com.aniket.movie.response.SearchListResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -49,7 +46,21 @@ public class ApplicationUtils {
     }
 
     @Cacheable(value = "cache-data", key = "{#context}+'-'+#key")
-    public String getCache(String key, String context) {
+    public String getCacheLocal(String key, String context) {
+        log.info("ACTUAL CACHE GET CALLED TO DIST CACHE -  {} ---->{}", context, key);
+        String result = null;
+        try {
+            //result =  restTemplate.exchange("http://localhost:"+applicationPort+"/cache/"+context+"/"+key, HttpMethod.GET, null, String.class).getBody();
+            result = restTemplate.exchange(hazelcastServiceUrlBase + "/cache/" + context + "/" + key, HttpMethod.GET, null, String.class).getBody();
+        } catch (Exception e) {
+            log.error("Exception Happened ----- {}", e);
+        }
+        log.info("Cache Context - {} , Key - {} , value - {}", context, key, result);
+        return result;
+    }
+
+
+    public String getCacheRemote(String key, String context) {
         log.info("ACTUAL CACHE GET CALLED TO DIST CACHE -  {} ---->{}", context, key);
         String result = null;
         try {

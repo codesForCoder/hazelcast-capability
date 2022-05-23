@@ -2,6 +2,7 @@ package com.aniket.movie.controller;
 
 
 import com.aniket.movie.constant.CacheContext;
+import com.aniket.movie.constant.DataSource;
 import com.aniket.movie.dto.Address;
 import com.aniket.movie.eventprocessor.AddressUpdateEventAsync;
 import com.aniket.movie.eventprocessor.AddressUpdateEventInSync;
@@ -46,14 +47,18 @@ public class AddressController {
     @Autowired
     private ConfigCatClient client;
 
-    @GetMapping(params = {"page" , "limit" ,"noCache"})
-    public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "false" , required = false)String  noCache){
+    @GetMapping(params = {"page" , "limit" ,"source"})
+    public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false) DataSource dataSrc){
         log.info("Fetching Address for Page --- {} with Page Size - {}" , page , limit);
+        if(dataSrc==null) {
+            dataSrc = DataSource.fromValue("LOCAL_CACHE");
+        }
         AddressListResponse allAddress =addressService.findAllAddress(limit,page);
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
+        log.info("is Data Need to be treived from Database - Mandetory ? - {}",dataSrc.toString());
         log.info("Enrich Address Payload wither from Cache or DB");
+        DataSource finalDataSrc = dataSrc;
         allAddress.setAddressList(allAddress.getAddressList().stream().map(addr->{
-            Address address = getAddress(addr.getAddressId(), noCache);
+            Address address = getAddress(addr.getAddressId(), finalDataSrc);
             address.setEnvironmentDetails(null);
             return address;
         }).collect(Collectors.toList()));
@@ -61,14 +66,22 @@ public class AddressController {
         return allAddress;
     }
 
-    @GetMapping(path = "/{id}" , params = {"noCache"})
-    public Address getAddress(@PathVariable("id") int addressId , @RequestParam(defaultValue = "false" , required = false)String  noCache){
+    @GetMapping(path = "/{id}" , params = {"source"})
+    public Address getAddress(@PathVariable("id") int addressId , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false) DataSource dataSrc){
         log.info("Fetching Address for  id -- {}" , addressId );
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
-        Boolean isFromDB = Boolean.valueOf(noCache);
+        if(dataSrc==null) {
+            dataSrc = DataSource.fromValue("LOCAL_CACHE");
+        }
+        log.info("is Data Need to be treived from Database - Mandetory ? - {}", dataSrc.toString());
+
         Address address;
-        String cache = applicationUtils.getCache(String.valueOf(addressId), CacheContext.ADDRESS);
-        if(StringUtils.hasText(cache) & !isFromDB) {
+        String cache=null;
+        if(DataSource.LOCAL_CACHE.equals(dataSrc)){
+            cache = applicationUtils.getCacheLocal(String.valueOf(addressId), CacheContext.ADDRESS);
+        }else if(DataSource.REMOTE_CACHE.equals(dataSrc)){
+            cache = applicationUtils.getCacheRemote(String.valueOf(addressId), CacheContext.ADDRESS);
+        }
+        if(StringUtils.hasText(cache) && !DataSource.DB.equals(dataSrc)) {
         	log.info("Raw Data - {}" , cache);
             Gson gson = new GsonBuilder()
                     .setDateFormat("yyyy-MMM-dd hh:mm:ss aa").create();

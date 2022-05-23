@@ -2,6 +2,7 @@ package com.aniket.movie.controller;
 
 
 import com.aniket.movie.constant.CacheContext;
+import com.aniket.movie.constant.DataSource;
 import com.aniket.movie.dto.Customer;
 import com.aniket.movie.eventprocessor.CustomerUpdateEventAsync;
 import com.aniket.movie.eventprocessor.CustomerUpdateEventInSync;
@@ -44,14 +45,19 @@ public class CustomerController {
     @Autowired
     private ConfigCatClient client;
 
-    @GetMapping(params = {"page" , "limit" ,"noCache"})
-    public CustomerListResponse getCustomers(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "false" , required = false)String  noCache){
+    @GetMapping(params = {"page" , "limit" ,"source"})
+    public CustomerListResponse getCustomers(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false)DataSource  dataSrc){
         log.info("Fetching Customer for Page --- {} with Page Size - {}" , page , limit);
+       if(dataSrc==null) {
+           dataSrc = DataSource.fromValue("LOCAL_CACHE");
+       }
         CustomerListResponse customers =customerService.findAllCustomer(limit,page);
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
+        log.info("is Data Need to be treived from Database - Mandetory ? - {}", dataSrc);
         log.info("Enrich Customer Payload wither from Cache or DB");
+
+        DataSource finalDataSrc = dataSrc;
         customers.setCustomerList(customers.getCustomerList().stream().map(cust->{
-            Customer customer = getCustomer(cust.getCustomerId(), noCache);
+            Customer customer = getCustomer(cust.getCustomerId(), finalDataSrc);
             customer.setEnvironmentDetails(null);
             return customer;
         }).collect(Collectors.toList()));
@@ -66,14 +72,22 @@ public class CustomerController {
         return new ResponseEntity<String>("Cache Building Started at Env :: "+applicationUtils.getCurrentEnv(),HttpStatus.ACCEPTED);
     }
 
-    @GetMapping(path = "/{id}" , params = {"noCache"})
-    public Customer getCustomer(@PathVariable("id") int customerId , @RequestParam(defaultValue = "false" , required = false)String  noCache){
+    @GetMapping(path = "/{id}" , params = {"source"})
+    public Customer getCustomer(@PathVariable("id") int customerId , @RequestParam(defaultValue = "LOCAL_CACHE" , required = false)DataSource  dataSrc){
         log.info("Fetching Customer for  id -- {}" , customerId );
-        log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
-        Boolean isFromDB = Boolean.valueOf(noCache);
+        if(dataSrc==null) {
+            dataSrc = DataSource.fromValue("LOCAL_CACHE");
+        }
+        log.info("is Data Need to be rtreived from Database - Mandetory ? - {}", dataSrc);
         Customer customer;
-        String cache = applicationUtils.getCache(String.valueOf(customerId), CacheContext.CUSTOMER);
-        if(StringUtils.hasText(cache) && !isFromDB) {
+        String cache=null;
+        if(DataSource.LOCAL_CACHE.equals(dataSrc)){
+            cache = applicationUtils.getCacheLocal(String.valueOf(customerId), CacheContext.CUSTOMER);
+        }else if(DataSource.REMOTE_CACHE.equals(dataSrc)){
+            cache = applicationUtils.getCacheRemote(String.valueOf(customerId), CacheContext.CUSTOMER);
+        }
+
+        if(StringUtils.hasText(cache) && !DataSource.DB.equals(dataSrc)) {
         	log.info("Raw Data - {}" , cache);
             Gson gson = new GsonBuilder()
                     .setDateFormat( "yyyy-MMM-dd hh:mm:ss aa").create();
