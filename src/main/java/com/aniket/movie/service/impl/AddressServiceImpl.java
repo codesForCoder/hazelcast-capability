@@ -10,6 +10,8 @@ import com.aniket.movie.eventprocessor.AddressUpdateEvent;
 import com.aniket.movie.eventprocessor.CustomerUpdateEvent;
 import com.aniket.movie.repository.AddressRepository;
 import com.aniket.movie.repository.CustomerRepository;
+import com.aniket.movie.response.AddressListResponse;
+import com.aniket.movie.response.CustomerListResponse;
 import com.aniket.movie.service.AddressService;
 import com.aniket.movie.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;
@@ -88,4 +90,20 @@ public class AddressServiceImpl implements AddressService {
          }
 		
 	}
+
+    @Override
+    public AddressListResponse findAllAddress(int limit, int page) {
+        Pageable addressesSortedByName =
+                PageRequest.of(page, limit);
+        Page<AddressEntityProjection> addressEntityProjections = addressRepository.findByAddressIdNotNull(addressesSortedByName);
+        ModelMapper modelMapper = new ModelMapper();
+        List<Address> addresses = addressEntityProjections.getContent().stream().map(addressEntityProjection -> modelMapper.map(addressEntityProjection, Address.class)).collect(Collectors.toList());
+        AddressListResponse addressListResponse = new AddressListResponse();
+        addressListResponse.setAddressList(addresses);
+        addressListResponse.setCurrentPage((long) page);
+        addressListResponse.setTotalPages((long) addressEntityProjections.getTotalPages());
+        addressListResponse.setTotalElements(addressEntityProjections.getTotalElements());
+        addressListResponse.setPageSize((long) limit);
+        return addressListResponse;
+    }
 }

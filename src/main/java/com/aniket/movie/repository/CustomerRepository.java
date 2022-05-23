@@ -19,5 +19,5 @@ public interface CustomerRepository extends PagingAndSortingRepository<CustomerE
 			  value = "SELECT customer_id FROM CUSTOMER WHERE address_id = :addressId", 
 			  countQuery = "SELECT count(customer_id) FROM CUSTOMER WHERE address_id = :addressId", 
 			  nativeQuery = true)
-	public Page<Integer> findCustomersByAddressId(Pageable pageable , @Param("addressId") Integer addressId);
+	 Page<Integer> findCustomersByAddressId(Pageable pageable , @Param("addressId") Integer addressId);
 }

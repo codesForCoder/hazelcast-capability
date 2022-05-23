@@ -47,7 +47,9 @@ public class CustomerController {
         log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
         log.info("Enrich Customer Payload wither from Cache or DB");
         customers.setCustomerList(customers.getCustomerList().stream().map(cust->{
-        	return  getCustomer(cust.getCustomerId(),noCache);
+            Customer customer = getCustomer(cust.getCustomerId(), noCache);
+            customer.setEnvironmentDetails(null);
+            return customer;
         }).collect(Collectors.toList()));
         customers.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return customers;

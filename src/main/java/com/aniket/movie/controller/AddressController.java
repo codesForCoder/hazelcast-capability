@@ -3,12 +3,11 @@ package com.aniket.movie.controller;
 
 import com.aniket.movie.constant.CacheContext;
 import com.aniket.movie.dto.Address;
+import com.aniket.movie.dto.Customer;
 import com.aniket.movie.eventprocessor.AddressUpdateEvent;
 import com.aniket.movie.request.AddressRequest;
 import com.aniket.movie.request.SearchListRequest;
-import com.aniket.movie.response.AddressResponse;
-import com.aniket.movie.response.AddressSearchListResponse;
-import com.aniket.movie.response.SearchListResponse;
+import com.aniket.movie.response.*;
 import com.aniket.movie.service.AddressService;
 import com.aniket.movie.util.ApplicationUtils;
 import com.google.gson.Gson;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -43,7 +41,22 @@ public class AddressController {
     
     @Autowired
     private ApplicationUtils applicationUtils;
-    
+
+
+    @GetMapping(params = {"page" , "limit" ,"noCache"})
+    public AddressListResponse getAddresses(@RequestParam int page , @RequestParam int limit , @RequestParam(defaultValue = "false" , required = false)String  noCache){
+        log.info("Fetching Address for Page --- {} with Page Size - {}" , page , limit);
+        AddressListResponse allAddress =addressService.findAllAddress(limit,page);
+        log.info("is Data Need to be treived from Database - Mandetory ? - {}",noCache);
+        log.info("Enrich Address Payload wither from Cache or DB");
+        allAddress.setAddressList(allAddress.getAddressList().stream().map(addr->{
+            Address address = getAddress(addr.getAddressId(), noCache);
+            address.setEnvironmentDetails(null);
+            return address;
+        }).collect(Collectors.toList()));
+        allAddress.setEnvironmentDetails(applicationUtils.getCurrentEnv());
+        return allAddress;
+    }
 
     @GetMapping(path = "/{id}" , params = {"noCache"})
     public Address getAddress(@PathVariable("id") int addressId , @RequestParam(defaultValue = "false" , required = false)String  noCache){
