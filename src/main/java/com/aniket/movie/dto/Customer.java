@@ -1,5 +1,6 @@
 package com.aniket.movie.dto;
 
+import com.aniket.movie.response.EnvironmentDetails;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import java.util.Date;
 
 @Data
 public class Customer {
-
+    private EnvironmentDetails environmentDetails;
     private Integer customerId;
 
     private Integer storeId;

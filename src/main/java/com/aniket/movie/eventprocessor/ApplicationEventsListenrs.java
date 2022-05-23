@@ -1,7 +1,9 @@
 package com.aniket.movie.eventprocessor;
 
+import com.configcat.ConfigCatClient;
 import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -31,11 +33,18 @@ public class ApplicationEventsListenrs {
 	@Autowired
 	private ApplicationUtils applicationUtils;
 
+	@Autowired
+	private ConfigCatClient client;
+
 	@Async
 	@EventListener
 	public void customerMainDataUpdateListner(CustomerUpdateEvent event) throws Exception {
 		log.info("CustomerUpdateEvent is Captured ....");
-	//	Thread.sleep(5000);
+		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
+		if(application_delay_introduced)
+		{
+			Thread.sleep(5000);
+		}
 		Customer customer =  (Customer) event.getPayload();
 		Integer customerId = customer.getCustomerId();
 		Customer findCustomerFromDB = customerService.findCustomerFromDB(customerId);
@@ -52,7 +61,11 @@ public class ApplicationEventsListenrs {
 	@EventListener
 	public void customerMainDataUpdateListner(AddressUpdateEvent event) throws Exception {
 		log.info("AddressUpdateEvent is Captured .... Updating Address Part of the Contract ");
-	//	Thread.sleep(5000);
+		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
+		if(application_delay_introduced)
+		{
+			Thread.sleep(5000);
+		}
 		Address address =  (Address) event.getPayload();
 		Integer addressId = address.getAddressId();
 		log.info("Payload is - AddressId :: {}" , addressId);
@@ -65,7 +78,11 @@ public class ApplicationEventsListenrs {
 	@EventListener
 	public void addressUpdateListner(AddressUpdateEvent event) throws Exception {
 		log.info("AddressUpdateEvent is Captured ....");
-	//	Thread.sleep(5000);
+		boolean application_delay_introduced = client.getValue(Boolean.class, "application_delay_introduced", false);
+		if(application_delay_introduced)
+		{
+			Thread.sleep(5000);
+		}
 		Address address =  (Address) event.getPayload();
 		Integer addressId = address.getAddressId();
 		Address findAddressFromDB = addressService.findAddressFromDB(addressId);

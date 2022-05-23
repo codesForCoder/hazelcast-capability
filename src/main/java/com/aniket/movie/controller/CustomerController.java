@@ -48,6 +48,7 @@ public class CustomerController {
         customers.setCustomerList(customers.getCustomerList().stream().map(cust->{
         	return  getCustomer(cust.getCustomerId(),noCache);
         }).collect(Collectors.toList()));
+        customers.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return customers;
     }
     
@@ -55,7 +56,7 @@ public class CustomerController {
     public ResponseEntity<String> initCache(){
         log.info("Starting Customer Payload Cache Building");
         customerService.publishAllContracts();
-        return new ResponseEntity<String>("Cache Building Started ....",HttpStatus.ACCEPTED);
+        return new ResponseEntity<String>("Cache Building Started at Env :: "+applicationUtils.getCurrentEnv(),HttpStatus.ACCEPTED);
     }
 
     @GetMapping(path = "/{id}" , params = {"noCache"})
@@ -73,7 +74,7 @@ public class CustomerController {
         }else {
         	customer=customerService.findCustomerFromDB(customerId);
         }
-         
+         customer.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return customer;
     }
     @PutMapping(path = "/{id}")
@@ -85,7 +86,9 @@ public class CustomerController {
         Customer updatedCustomer =customerService.updateCustomer(customer);
         CustomerUpdateEvent event = new CustomerUpdateEvent(this, updatedCustomer);
 		publisher.publishEvent(event);
-        return modelMapper.map(updatedCustomer, CustomerResponse.class);
+        CustomerResponse customerResponse = modelMapper.map(updatedCustomer, CustomerResponse.class);
+        customerResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
+        return  customerResponse;
 
     }
     

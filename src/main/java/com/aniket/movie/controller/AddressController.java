@@ -56,7 +56,7 @@ public class AddressController {
         	log.info("Fetching Data from Database ....");
         	address= addressService.findAddressFromDB(addressId);
         }
-      
+        address.setEnvironmentDetails(applicationUtils.getCurrentEnv());
         return address;
     }
     @PutMapping(path = "/{id}")
@@ -68,14 +68,16 @@ public class AddressController {
         Address updateAddress =addressService.updateAddress(address);
         AddressUpdateEvent event = new AddressUpdateEvent(this, updateAddress);
 		publisher.publishEvent(event);
-        return modelMapper.map(updateAddress, AddressResponse.class);
+        AddressResponse addressResponse = modelMapper.map(updateAddress, AddressResponse.class);
+        addressResponse.setEnvironmentDetails(applicationUtils.getCurrentEnv());
+        return addressResponse;
     }
     
     @PostMapping
     public ResponseEntity<String> initCache(){
         log.info("Starting Address Payload Cache Building");
         addressService.publishAllAddresses();
-        return new ResponseEntity<String>("Cache Buuilding Started ....",HttpStatus.ACCEPTED);
+        return new ResponseEntity<String>("Cache Buuilding Started At Env : --"+ applicationUtils.getCurrentEnv(),HttpStatus.ACCEPTED);
     }
 
 

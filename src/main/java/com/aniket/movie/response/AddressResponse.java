@@ -7,6 +7,8 @@ import java.util.Date;
 @Data
 public class AddressResponse {
 
+    private EnvironmentDetails environmentDetails;
+
     private Integer addressId;
 
     private String addressLine1;

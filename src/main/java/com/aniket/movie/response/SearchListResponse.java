@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class SearchListResponse {
-
+  private EnvironmentDetails environmentDetails;
   private List<Object> searchedDataList;
   private Long totalPages;
   private Long currentPage;

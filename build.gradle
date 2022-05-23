@@ -50,7 +50,7 @@ dependencies {
 implementation 'com.google.code.gson:gson:2.9.0'
 	implementation 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
-	
+	implementation 'com.configcat:configcat-java-client:7.+'
 }
 
 tasks.named('test') {

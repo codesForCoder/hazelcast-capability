@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class CustomerListResponse {
-
+  private EnvironmentDetails environmentDetails;
   private List<Customer> customerList;
   private Long totalPages;
   private Long currentPage;
